@@ -16,7 +16,7 @@ For type 2, when the `master` branch is merged to, and the `MAINTAINER.txt` file
 
 ## How to setup up
 
-Create a workflow file in your project under `.github/workflows/gh-release-generator.yml`. The file should look
+Create a workflow file in your project under `.github/workflows/gh-dynamic-assignee.yml`. The file should look
 like this:
 
 ```yaml
