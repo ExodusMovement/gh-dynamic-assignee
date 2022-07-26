@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: GH Dynamic Assignee
-        uses: ExodusMovement/gh-dyamic-assignee@v0.0.1
+        uses: ExodusMovement/gh-dynamic-assignee@v0.0.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
