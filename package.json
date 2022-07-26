@@ -10,8 +10,8 @@
     "src"
   ],
   "scripts": {
-    "build": "tsc && ncc build src/index.mjs -m",
-    "build:test": "tsc && ncc build test/e2e-test.mjs -m",
+    "build": "ncc build src/index.mjs -m",
+    "build:test": "ncc build test/e2e-test.mjs -m",
     "format": "yarn prettier --write",
     "prettier": "prettier \"src/**/*.mjs\"",
     "lint": "eslint .",
