@@ -1,0 +1,12 @@
+name: 'GH Dynamic Assignee'
+description: 'Assigns automatically the person specified in MAINTAINER.txt.'
+inputs:
+  github_token:
+    description: 'The GitHub token (if not provided the environment variable GITHUB_TOKEN will be used instead)'
+    required: false
+outputs:
+  id:
+    description: 'The release id'
+runs:
+  using: 'node16'
+  main: 'dist/index.mjs'

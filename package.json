@@ -1,0 +1,67 @@
+{
+  "name": "@exodus/gh-dynamic-assignee",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Not for publishing.",
+  "author": "Exodus Movement Inc",
+  "license": "UNLICENSED",
+  "main": "dist/index.mjs",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc && ncc build src/index.mjs -m",
+    "build:test": "tsc && ncc build test/e2e-test.mjs -m",
+    "format": "yarn prettier --write",
+    "prettier": "prettier \"src/**/*.mjs\"",
+    "lint": "eslint .",
+    "lint:fix": "yarn lint --fix"
+  },
+  "eslintConfig": {
+    "env": {
+      "node": true,
+      "browser": true,
+      "commonjs": true,
+      "es2021": true
+    },
+    "extends": [
+      "eslint:recommended",
+      "prettier"
+    ],
+    "plugins": [
+      "prettier"
+    ],
+    "rules": {
+      "prettier/prettier": "error",
+      "lines-between-class-members": [
+        "error",
+        "always",
+        {
+          "exceptAfterSingleLine": true
+        }
+      ]
+    },
+    "parserOptions": {
+      "emcaVersion": "13",
+      "sourceType": "module"
+    },
+    "ignorePatterns": [
+      "dist/*"
+    ]
+  },
+  "prettier": "@exodus/prettier",
+  "devDependencies": {
+    "@exodus/prettier": "^0.1.5",
+    "@vercel/ncc": "^0.33.4",
+    "eslint": "^7.23.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "prettier": "^2.2.1"
+  },
+  "dependencies": {
+    "@actions/core": "^1.6.0",
+    "@actions/github": "^5.0.1",
+    "@octokit/graphql": "^4.8.0",
+    "@octokit/rest": "^18.12.0"
+  }
+}
