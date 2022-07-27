@@ -6,7 +6,10 @@ async function run() {
     console.log('github.context=', github.context)
 
     const { eventName, sha, owner, repo, payload } = github.context.repo
-    console.info('github.context.repo=', repo)
+    console.info('eventName=', eventName)
+    console.info('sha=', sha)
+    console.info('owner=', owner)
+    console.info('repo=', repo)
     console.info('payload=', payload)
 
     if (['pull_request', 'push'].includes(eventName)) {
