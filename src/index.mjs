@@ -35,24 +35,31 @@ async function assignMaintainer(owner, repo, sha) {
 }
 
 // Call this when a the 'Ready to Merge' label is applied
-async function assignOnLabel(owner, repo, sha) {
+async function assignOnLabel(owner, repo, sha, prNumber) {
   const maintainer = await readMaintainerTxt(owner, repo, sha)
   console.info(`maintainer=${maintainer}`)
+
+  const path = `PATCH repos/${owner}/${repo}/issues/${prNumber}`
+  console.info('path=', path)
+
+  const octokit = getOctokit()
+  const res = await octokit.request(path, { assignees: [maintainer] })
+  console.info('res=', res)
 }
 
 async function run() {
   try {
     console.log('github.context=', github.context)
 
-    const { eventName, sha } = github.context
+    const { eventName, sha, payload } = github.context
     const { owner, repo } = github.context.repo
     console.info('eventName=', eventName)
     console.info('sha=', sha)
     console.info('owner=', owner)
     console.info('repo=', repo)
 
-    if (eventName === 'pull_request') {
-      await assignOnLabel(owner, repo, sha)
+    if (eventName === 'pull_request' && payload?.label?.name?.startsWith('Ready to Merge')) {
+      await assignOnLabel(owner, repo, sha, payload.pull_request.number)
     } else if (eventName === 'push') {
       await assignMaintainer(owner, repo, sha)
     }
