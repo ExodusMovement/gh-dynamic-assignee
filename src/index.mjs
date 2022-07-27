@@ -3,9 +3,9 @@ import * as github from '@actions/github'
 
 async function run() {
   try {
-    // console.log('github.context=', github.context)
+    console.log('github.context=', github.context)
 
-    const { eventName, sha, repo, payload } = github.context.repo
+    const { eventName, sha, owner, repo, payload } = github.context.repo
     console.info('github.context.repo=', repo)
     console.info('payload=', payload)
 
@@ -13,9 +13,7 @@ async function run() {
       const token = core.getInput('github_token') || process.env.GITHUB_TOKEN
       const octokit = new github.getOctokit(token)
 
-      const res = await octokit.request(
-        `GET /repos/ExodusMovement/${repo.owner}/${repo.repo}/commits/${sha}`
-      )
+      const res = await octokit.request(`GET /repos/ExodusMovement/${owner}/${repo}/commits/${sha}`)
 
       console.info('res=', res)
 
