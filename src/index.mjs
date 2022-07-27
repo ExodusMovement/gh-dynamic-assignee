@@ -22,6 +22,14 @@ async function run() {
       const res = await octokit.request(path)
       console.info('files=', res.data.files)
 
+      if (res.data.files.findIndex((entry) => entry.filename === 'MAINTAINER.txt') !== -1) {
+        const res2 = await octokit.request(`GET /repos/${owner}/${repo}/contents/MAINTAINER.txt`, {
+          ref: sha,
+        })
+        const contents = Buffer.from(res2.data.content, 'base64').toString('utf8')
+        console.info('contents=', contents)
+      }
+
       // core.setOutput(id)
     }
   } catch (err) {
