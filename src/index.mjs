@@ -5,7 +5,7 @@ async function run() {
   try {
     console.log('github.context=', github.context)
 
-    const { eventName, sha, owner, repo, payload } = github.context.repo
+    const { eventName, sha, owner, repo, payload } = github.context
     console.info('eventName=', eventName)
     console.info('sha=', sha)
     console.info('owner=', owner)
