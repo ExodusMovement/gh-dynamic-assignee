@@ -39,7 +39,7 @@ async function assignOnLabel(owner, repo, sha, prNumber) {
   const maintainer = await readMaintainerTxt(owner, repo, sha)
   console.info(`maintainer=${maintainer}`)
 
-  const path = `PATCH repos/${owner}/${repo}/issues/${prNumber}`
+  const path = `PATCH /repos/${owner}/${repo}/issues/${prNumber}`
   console.info('path=', path)
 
   const octokit = getOctokit()
