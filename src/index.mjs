@@ -17,7 +17,7 @@ async function run() {
       const token = core.getInput('github_token') || process.env.GITHUB_TOKEN
       const octokit = new github.getOctokit(token)
 
-      const path = `GET /repos/ExodusMovement/${owner}/${repo}/commits/${sha}`
+      const path = `GET /repos/${owner}/${repo}/commits/${sha}`
       console.info('path=', path)
 
       const res = await octokit.request(path)
