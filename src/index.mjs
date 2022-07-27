@@ -20,7 +20,7 @@ async function run() {
       console.info('path=', path)
 
       const res = await octokit.request(path)
-      console.info('files=', res.files)
+      console.info('files=', res.data.files)
 
       // core.setOutput(id)
     }
