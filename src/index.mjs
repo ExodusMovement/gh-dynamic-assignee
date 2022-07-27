@@ -11,7 +11,7 @@ async function readMaintainerTxt(owner, repo, sha) {
   const res2 = await octokit.request(`GET /repos/${owner}/${repo}/contents/MAINTAINER.txt`, {
     ref: sha,
   })
-  return Buffer.from(res2.data.content, 'base64').toString('utf8')
+  return Buffer.from(res2.data.content, 'base64').toString('utf8').replaceAll('\n', '')
 }
 
 // Run this function when a push to `master` happens and MAINTAINER.txt got changed
