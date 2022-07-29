@@ -1,7 +1,7 @@
 const query = `#graphql
-  query PRsByLabelQuery($owner: String!, $repo: String!, $label: String!, $first: Int!, $after: String) {
+  query PRsByLabelQuery($owner: String!, $repo: String!, $labelName: String!, $first: Int!, $after: String) {
     repository(owner: $owner, name: $repo) {
-      label(name: $label) {
+      label(name: $labelName) {
         id
         pullRequests(first: $first, after: $after) {
           nodes {
@@ -26,7 +26,13 @@ export default async function getPullRequests(octokit, owner, repo, labelName) {
   let labelId
 
   do {
-    const result = await octokit.graphql(query, { owner, repo, labelName, first: 100, after })
+    const result = await octokit.graphql(query, {
+      owner,
+      repo,
+      labelName,
+      first: 100,
+      after,
+    })
     const label = result.repository.label
     const pullRequests = label?.pullRequests
     const pageInfo = pullRequests?.pageInfo
