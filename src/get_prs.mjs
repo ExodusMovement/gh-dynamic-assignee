@@ -39,8 +39,8 @@ export default async function getPullRequests(octokit, owner, repo, labelName) {
     const theNodes = pullRequests?.nodes
 
     labelId = label?.id
-    hasNextPage = pageInfo.hasNextPage
-    after = pageInfo.endCursor
+    hasNextPage = pageInfo?.hasNextPage
+    after = pageInfo?.endCursor
 
     if (theNodes) {
       prList = prList.concat(theNodes.map((node) => node.id))
