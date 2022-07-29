@@ -5,14 +5,12 @@ const query = `#graphql
         pullRequests(first: $first, after: $after) {
           nodes {
             id
-            number
-            title
+            closed
           }
           pageInfo {
             hasNextPage
             endCursor
           }
-          totalCount
         }
       }
     }
@@ -40,7 +38,7 @@ export default async function getPullRequests(octokit, owner, repo, labelName) {
     after = pageInfo?.endCursor
 
     if (theNodes) {
-      prList = prList.concat(theNodes.map((node) => node.id))
+      prList = prList.concat(theNodes.filter((node) => !node.closed).map((node) => node.id))
     }
   } while (hasNextPage)
 
