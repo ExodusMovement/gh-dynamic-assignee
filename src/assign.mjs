@@ -34,8 +34,8 @@ export async function assignMaintainer(owner, repo, sha) {
     const maintainer = await readMaintainerTxt(owner, repo, sha)
     console.info('maintainer=', maintainer)
 
-    const { labelId, prList } = await getPullRequests(octokit, owner, repo, 'Ready to Merge')
-    const ret = await updatePrs(octokit, labelId, prList)
+    const prList = await getPullRequests(octokit, owner, repo, 'Ready to Merge')
+    const ret = await updatePrs(octokit, maintainer, prList)
     console.info('ret=', ret)
   }
 }

@@ -21,22 +21,38 @@ function generateQuery(prCount) {
   return query
 }
 
+async function lookupLoginId(octokit, loginId) {
+  const result = await octokit.graphql(
+    `#graphql
+      query GetUser($loginId: String!) {
+        user(login: $loginId) {
+          id
+        }
+      }`,
+    { loginId }
+  )
+
+  return result.data.user.id
+}
+
 export function testQuery(prCount) {
   const query = generateQuery(prCount)
   console.info('query=', query)
 }
 
-export default async function updatePrs(octokit, labelId, prIds) {
+export default async function updatePrs(octokit, loginId, prIds) {
+  const userId = await lookupLoginId(octokit, loginId)
+  console.info(`loginId ${loginId}: ${userId}`)
+
   const query = generateQuery(prIds.length)
   const params = {
-    assigneeIds: [labelId],
+    assigneeIds: [userId],
   }
 
   for (let idx = 0; idx < prIds.length; idx++) {
     params[`prId${idx}`] = prIds[idx]
   }
 
-  console.info('labelId=', labelId)
   console.info('prIds=', prIds)
   console.info('query=', query)
   console.info('params=', params)
