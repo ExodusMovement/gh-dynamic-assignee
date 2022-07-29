@@ -36,6 +36,8 @@ export default async function updatePrs(octokit, labelId, prIds) {
     params[`prId${idx}`] = prIds[idx]
   }
 
+  console.info('labelId=', labelId)
+  console.info('prIds=', prIds)
   console.info('query=', query)
   console.info('params=', params)
 

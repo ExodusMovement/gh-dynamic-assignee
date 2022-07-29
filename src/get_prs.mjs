@@ -47,5 +47,7 @@ export default async function getPullRequests(octokit, owner, repo, labelName) {
     }
   } while (hasNextPage)
 
-  return { labelId, prList }
+  const result = { labelId, prList }
+  console.info('result=', result)
+  return result
 }
