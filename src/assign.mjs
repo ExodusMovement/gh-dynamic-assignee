@@ -21,10 +21,7 @@ export async function assignMaintainer(owner, repo, sha) {
   const octokit = getOctokit()
 
   const path = `GET /repos/${owner}/${repo}/commits/${sha}`
-  console.info('path=', path)
-
   const res = await octokit.request(path)
-  console.info('files=', res.data.files)
 
   if (
     res.data.files.findIndex(
@@ -32,11 +29,9 @@ export async function assignMaintainer(owner, repo, sha) {
     ) !== -1
   ) {
     const maintainer = await readMaintainerTxt(owner, repo, sha)
-    console.info('maintainer=', maintainer)
 
     const prList = await getPullRequests(octokit, owner, repo, 'Ready to Merge')
-    const ret = await updatePrs(octokit, maintainer, prList)
-    console.info('ret=', ret)
+    return await updatePrs(octokit, maintainer, prList)
   }
 }
 
@@ -46,7 +41,5 @@ export async function assignOnLabel(owner, repo, sha, prNumber) {
   const path = `PATCH /repos/${owner}/${repo}/issues/${prNumber}`
   const octokit = getOctokit()
 
-  const res = await octokit.request(path, { assignees: [maintainer] })
-  console.info('res=', res)
-  return res
+  return await octokit.request(path, { assignees: [maintainer] })
 }

@@ -32,8 +32,6 @@ async function lookupLoginId(octokit, loginId) {
     { loginId }
   )
 
-  console.info('lookupLoginId result=', result)
-
   return result.user.id
 }
 
@@ -44,7 +42,6 @@ export function testQuery(prCount) {
 
 export default async function updatePrs(octokit, loginId, prIds) {
   const userId = await lookupLoginId(octokit, loginId)
-  console.info(`loginId ${loginId}: ${userId}`)
 
   const query = generateQuery(prIds.length)
   const params = {
@@ -54,10 +51,6 @@ export default async function updatePrs(octokit, loginId, prIds) {
   for (let idx = 0; idx < prIds.length; idx++) {
     params[`prId${idx}`] = prIds[idx]
   }
-
-  console.info('prIds=', prIds)
-  console.info('query=', query)
-  console.info('params=', params)
 
   return await octokit.graphql(query, params)
 }
