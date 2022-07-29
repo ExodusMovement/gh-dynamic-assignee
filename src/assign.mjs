@@ -17,7 +17,7 @@ async function readMaintainerTxt(owner, repo, sha) {
 }
 
 // Run this function when a push to `master` happens and MAINTAINER.txt got changed
-export async function assignMaintainer(owner, repo, sha) {
+export async function assignMaintainer(owner, repo, sha, labelName) {
   const octokit = getOctokit()
 
   const path = `GET /repos/${owner}/${repo}/commits/${sha}`
@@ -29,13 +29,12 @@ export async function assignMaintainer(owner, repo, sha) {
     ) !== -1
   ) {
     const maintainer = await readMaintainerTxt(owner, repo, sha)
-
-    const prList = await getPullRequests(octokit, owner, repo, 'Ready to Merge')
+    const prList = await getPullRequests(octokit, owner, repo, labelName)
     return await updatePrs(octokit, maintainer, prList)
   }
 }
 
-// Call this when a the 'Ready to Merge' label is applied
+// Call this when a the label is applied
 export async function assignOnLabel(owner, repo, sha, prNumber) {
   const maintainer = await readMaintainerTxt(owner, repo, sha)
   const path = `PATCH /repos/${owner}/${repo}/issues/${prNumber}`

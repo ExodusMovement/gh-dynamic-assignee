@@ -10,14 +10,16 @@ async function run() {
     const { eventName, sha, payload } = github.context
     const { owner, repo } = github.context.repo
 
-    console.info(`event '${eventName}' for ${owner}/${repo}, sha='${sha}'`)
+    const labelName = core.getInput('label_name')
 
-    if (eventName === 'pull_request' && payload?.label?.name?.startsWith('Ready to Merge')) {
+    console.info(`event '${eventName}' for ${owner}/${repo}, sha='${sha}', labelName=${labelName}`)
+
+    if (eventName === 'pull_request' && payload?.label?.name?.startsWith(labelName)) {
       console.info(`assign label '${payload.label.name}'`)
       await assignOnLabel(owner, repo, sha, payload.pull_request.number)
     } else if (eventName === 'push') {
       console.info('maintainer change')
-      await assignMaintainer(owner, repo, sha)
+      await assignMaintainer(owner, repo, sha, labelName)
     }
   } catch (err) {
     core.setFailed(err.message)

@@ -37,6 +37,7 @@ jobs:
         uses: ExodusMovement/gh-dynamic-assignee@v0.0.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          label_name: 'Ready to Merge'
 ```
 
 Obviously, make sure you use the latest version of the GH Dynamic Assignee

@@ -4,6 +4,10 @@ inputs:
   github_token:
     description: 'The GitHub token (if not provided the environment variable GITHUB_TOKEN will be used instead)'
     required: false
+  label_name:
+    description: 'The label name of the label to react to.'
+    required: false
+    default: 'Ready to Merge'
 outputs:
   id:
     description: 'The release id'
