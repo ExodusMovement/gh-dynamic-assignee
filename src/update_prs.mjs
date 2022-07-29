@@ -32,7 +32,9 @@ async function lookupLoginId(octokit, loginId) {
     { loginId }
   )
 
-  return result.data.user.id
+  console.info('lookupLoginId result=', result)
+
+  return result.user.id
 }
 
 export function testQuery(prCount) {
