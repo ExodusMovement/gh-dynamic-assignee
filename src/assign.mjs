@@ -30,7 +30,10 @@ export async function assignMaintainer(owner, repo, sha, labelName) {
   ) {
     const maintainer = await readMaintainerTxt(owner, repo, sha)
     const prList = await getPullRequests(octokit, owner, repo, labelName)
-    return await updatePrs(octokit, maintainer, prList)
+
+    if (prList.length > 0) {
+      return await updatePrs(octokit, maintainer, prList)
+    }
   }
 }
 
