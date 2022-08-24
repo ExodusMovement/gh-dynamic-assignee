@@ -1,14 +1,14 @@
-function generateQuery(prCount) {
-  let query = 'mutation AssignPrs($assigneeIds: [ID!]'
+function generateMutation(prCount) {
+  let query = `mutation AssignPrs(`
 
   for (let idx = 0; idx < prCount; idx++) {
-    query += `, $prId${idx}: ID!`
+    query += `${idx === 0 ? '' : ','} $prId${idx}: ID!, $assigneeIds${idx}: [ID!]`
   }
 
   query += ') {\n'
 
   for (let idx = 0; idx < prCount; idx++) {
-    query += `pr${idx}: updatePullRequest(input: {assigneeIds: $assigneeIds, pullRequestId: $prId${idx}}) {
+    query += `pr${idx}: updatePullRequest(input: {assigneeIds: $assigneeIds${idx}, pullRequestId: $prId${idx}}) {
       pullRequest {
         number
         title
@@ -21,36 +21,60 @@ function generateQuery(prCount) {
   return query
 }
 
-async function lookupLoginId(octokit, loginId) {
-  const result = await octokit.graphql(
-    `#graphql
-      query GetUser($loginId: String!) {
-        user(login: $loginId) {
-          id
-        }
-      }`,
-    { loginId }
-  )
+function generateQuery(loginCount) {
+  let query = `query GetUsers(`
 
-  return result.user.id
+  for (let idx = 0; idx < loginCount; idx++) {
+    query += `${idx === 0 ? '' : ','} $loginId${idx}: String!`
+  }
+
+  query += `) {\n`
+
+  for (let idx = 0; idx < loginCount; idx++) {
+    query += `user${idx}: user(login: $loginId${idx}) {
+        id
+      }\n`
+  }
+
+  query += `}`
+
+  return query
 }
 
-export function testQuery(prCount) {
-  const query = generateQuery(prCount)
+async function lookupLoginIds(octokit, loginIdList) {
+  const query = generateQuery(loginIdList.length)
+  const result = await octokit.graphql(query, { loginIdList })
+  return Object.values(result)
+}
+
+export function testQuery(count) {
+  const query = generateQuery(count)
   console.info('query=', query)
 }
 
-export default async function updatePrs(octokit, loginId, prIds) {
-  const userId = await lookupLoginId(octokit, loginId)
+export function testMutation(count) {
+  const mutation = generateMutation(count)
+  console.info('mutation=', mutation)
+}
 
-  const query = generateQuery(prIds.length)
-  const params = {
-    assigneeIds: [userId],
+export default async function updatePrs(octokit, maintainer, codeOwners, prList) {
+  const maintainerList = await lookupLoginIds(octokit, [
+    maintainer,
+    ...codeOwners.filter((login) => login !== maintainer),
+  ])
+  const mutation = generateMutation(prList.length)
+  const params = new Map()
+
+  for (let idx = 0; idx < prList.length; idx++) {
+    const pr = prList[idx]
+    const assignees = [
+      maintainerList[0],
+      ...pr.assignees.filter((userId) => !maintainerList.includes(userId)),
+    ]
+
+    params.set(`prId${idx}`, pr.id)
+    params.set(`assigneeIds${idx}`, assignees)
   }
 
-  for (let idx = 0; idx < prIds.length; idx++) {
-    params[`prId${idx}`] = prIds[idx]
-  }
-
-  return await octokit.graphql(query, params)
+  return await octokit.graphql(mutation, params)
 }

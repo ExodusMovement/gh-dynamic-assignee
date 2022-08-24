@@ -6,6 +6,9 @@ const query = `#graphql
           nodes {
             id
             closed
+            assignees(first: 100) {
+              id
+            }
           }
           pageInfo {
             hasNextPage
@@ -19,7 +22,7 @@ const query = `#graphql
 export default async function getPullRequests(octokit, owner, repo, labelName) {
   let hasNextPage
   let after
-  let prList = []
+  const prList = []
 
   do {
     const result = await octokit.graphql(query, {
@@ -32,13 +35,13 @@ export default async function getPullRequests(octokit, owner, repo, labelName) {
     const label = result.repository.label
     const pullRequests = label?.pullRequests
     const pageInfo = pullRequests?.pageInfo
-    const theNodes = pullRequests?.nodes
+    const nodeList = pullRequests?.nodes
 
     hasNextPage = pageInfo?.hasNextPage
     after = pageInfo?.endCursor
 
-    if (theNodes) {
-      prList = prList.concat(theNodes.filter((node) => !node.closed).map((node) => node.id))
+    for (const node of nodeList.filter((node) => !node.closed)) {
+      prList.push({ id: node.id, assignees: node.assignees.nodes.map((node) => node.id) })
     }
   } while (hasNextPage)
 
