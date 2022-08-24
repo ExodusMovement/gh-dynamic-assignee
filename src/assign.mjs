@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import getPullRequests from './get_prs.mjs'
+import { getPullRequests, getPullRequest } from './get_prs.mjs'
 import updatePrs from './update_prs.mjs'
 
 function getOctokit() {
@@ -33,7 +33,6 @@ async function readCodeOwners(owner, repo, sha) {
 // Run this function when a push to `master` happens and MAINTAINER.txt got changed
 export async function assignMaintainer(owner, repo, sha, labelName) {
   const octokit = getOctokit()
-
   const path = `GET /repos/${owner}/${repo}/commits/${sha}`
   const res = await octokit.request(path)
 
@@ -54,9 +53,10 @@ export async function assignMaintainer(owner, repo, sha, labelName) {
 
 // Call this when a the label is applied
 export async function assignOnLabel(owner, repo, sha, prNumber) {
-  const maintainer = await readMaintainerTxt(owner, repo, sha)
-  const path = `PATCH /repos/${owner}/${repo}/issues/${prNumber}`
   const octokit = getOctokit()
+  const maintainer = await readMaintainerTxt(owner, repo, sha)
+  const codeOwners = await readCodeOwners(owner, repo, sha)
+  const pr = await getPullRequest(octokit, owner, repo, prNumber)
 
-  return await octokit.request(path, { assignees: [maintainer] })
+  return await updatePrs(octokit, maintainer, codeOwners, [pr])
 }
