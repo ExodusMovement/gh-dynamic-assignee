@@ -60,7 +60,7 @@ export async function getPullRequests(octokit, owner, repo, labelName) {
   return prList
 }
 
-export default async function getPullRequest(octokit, owner, repo, prNumber) {
+export async function getPullRequest(octokit, owner, repo, prNumber) {
   const result = await octokit.graphql(prQuery, {
     owner,
     repo,
