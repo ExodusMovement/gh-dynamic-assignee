@@ -1,3 +1,5 @@
+import getOctokit from './octokit.mjs'
+
 const labelQuery = `#graphql
   query PRsByLabelQuery($owner: String!, $repo: String!, $labelName: String!, $first: Int!, $after: String) {
     repository(owner: $owner, name: $repo) {
@@ -60,7 +62,8 @@ export async function getPullRequests(octokit, owner, repo, labelName) {
   return prList
 }
 
-export async function getPullRequest(octokit, owner, repo, prNumber) {
+export async function getPullRequest(owner, repo, prNumber) {
+  const octokit = getOctokit()
   const result = await octokit.graphql(prQuery, {
     owner,
     repo,

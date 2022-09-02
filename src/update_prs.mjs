@@ -1,3 +1,5 @@
+import getOctokit from './octokit.mjs'
+
 function generateMutation(prCount) {
   let query = `mutation AssignPrs(`
 
@@ -41,9 +43,13 @@ function generateQuery(loginCount) {
   return query
 }
 
-async function lookupLoginIds(octokit, loginIdList) {
+export async function lookupLoginIds(octokit, loginIdList) {
   const query = generateQuery(loginIdList.length)
-  const result = await octokit.graphql(query, { loginIdList })
+  const loginParams = loginIdList.reduce(
+    (acc, login, idx) => ({ [`loginId${idx}`]: login, ...acc }),
+    {}
+  )
+  const result = await octokit.graphql(query, loginParams)
   return Object.values(result)
 }
 
@@ -57,7 +63,8 @@ export function testMutation(count) {
   console.info('mutation=', mutation)
 }
 
-export default async function updatePrs(octokit, maintainer, codeOwners, prList) {
+export default async function updatePrs(maintainer, codeOwners, prList) {
+  const octokit = getOctokit()
   const maintainerList = await lookupLoginIds(octokit, [
     maintainer,
     ...codeOwners.filter((login) => login !== maintainer),

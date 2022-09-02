@@ -5,8 +5,6 @@ import { assignOnLabel, assignMaintainer } from './assign.mjs'
 
 async function run() {
   try {
-    // console.log('github.context=', github.context)
-
     const { eventName, sha, payload } = github.context
     const { owner, repo } = github.context.repo
 
