@@ -10,6 +10,7 @@
     "src"
   ],
   "scripts": {
+    "prepare": "husky install",
     "build": "ncc build src/index.mjs -m",
     "build:test": "ncc build test/e2e-test.mjs -m",
     "format": "yarn prettier --write",
@@ -56,6 +57,7 @@
     "eslint": "^7.23.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^3.3.1",
+    "husky": "^8.0.1",
     "prettier": "^2.2.1"
   },
   "dependencies": {
