@@ -15,7 +15,7 @@
     "build:test": "ncc build test/e2e-test.mjs -m",
     "format": "yarn prettier --write",
     "prettier": "prettier \"src/**/*.mjs\"",
-    "lint": "eslint .",
+    "lint": "eslint \"src/**/*.mjs\"",
     "lint:fix": "yarn lint --fix"
   },
   "eslintConfig": {
