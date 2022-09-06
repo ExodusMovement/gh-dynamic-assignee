@@ -84,8 +84,6 @@ export default async function updatePrs(maintainer, codeOwners, prList) {
     params.set(`assigneeIds${idx}`, assignees)
   }
 
-  console.info('params=', params)
-
   const octokit = getOctokit()
-  return await octokit.graphql(mutation, params)
+  return await octokit.graphql(mutation, Object.fromEntries(params))
 }
