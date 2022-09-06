@@ -69,6 +69,7 @@ export default async function updatePrs(maintainer, codeOwners, prList) {
     maintainer,
     ...codeOwners.filter((login) => login !== maintainer),
   ])
+
   const mutation = generateMutation(prList.length)
   const params = new Map()
 

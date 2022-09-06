@@ -19,7 +19,7 @@ export async function assignMaintainer(owner, repo, sha, labelName) {
     const prList = await getPullRequests(octokit, owner, repo, labelName)
 
     if (prList.length > 0) {
-      return await updatePrs(octokit, maintainer, codeOwners, prList)
+      return await updatePrs(maintainer, codeOwners, prList)
     }
   }
 }
