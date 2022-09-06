@@ -9,7 +9,9 @@ const labelQuery = `#graphql
             id
             closed
             assignees(first: 100) {
-              id
+              nodes {
+                id
+              }
             }
           }
           pageInfo {
