@@ -29,7 +29,9 @@ const prQuery = `#graphql
       pullRequest(number: $prNumber) {
         id
         assignees(first: 100) {
-          id
+          nodes {
+            id
+          }
         }
       }
     }
