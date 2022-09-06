@@ -76,7 +76,7 @@ export default async function updatePrs(maintainer, codeOwners, prList) {
   for (let idx = 0; idx < prList.length; idx++) {
     const pr = prList[idx]
     const assignees = [
-      maintainerList[0],
+      maintainerList[0].id,
       ...pr.assignees.filter((userId) => !maintainerList.includes(userId)),
     ]
 
