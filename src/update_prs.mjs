@@ -51,7 +51,7 @@ export async function lookupLoginIds(loginIdList) {
     {}
   )
   const result = await octokit.graphql(query, loginParams)
-  return Object.values(result)
+  return Object.values(result).map((value) => value.id)
 }
 
 export function testQuery(count) {
@@ -76,7 +76,7 @@ export default async function updatePrs(maintainer, codeOwners, prList) {
   for (let idx = 0; idx < prList.length; idx++) {
     const pr = prList[idx]
     const assignees = [
-      maintainerList[0].id,
+      maintainerList[0],
       ...pr.assignees.filter((userId) => !maintainerList.includes(userId)),
     ]
 
