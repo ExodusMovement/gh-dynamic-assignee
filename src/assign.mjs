@@ -1,25 +1,11 @@
-import * as core from '@actions/core'
-import * as github from '@actions/github'
-import getPullRequests from './get_prs.mjs'
+import { getPullRequests, getPullRequest } from './get_prs.mjs'
+import getOctokit from './octokit.mjs'
+import { readMaintainerTxt, readCodeOwners } from './maintainers.mjs'
 import updatePrs from './update_prs.mjs'
-
-function getOctokit() {
-  const token = core.getInput('github_token') || process.env.GITHUB_TOKEN
-  return new github.getOctokit(token)
-}
-
-async function readMaintainerTxt(owner, repo, sha) {
-  const octokit = getOctokit()
-  const res2 = await octokit.request(`GET /repos/${owner}/${repo}/contents/MAINTAINER.txt`, {
-    ref: sha,
-  })
-  return Buffer.from(res2.data.content, 'base64').toString('utf8').replaceAll('\n', '')
-}
 
 // Run this function when a push to `master` happens and MAINTAINER.txt got changed
 export async function assignMaintainer(owner, repo, sha, labelName) {
   const octokit = getOctokit()
-
   const path = `GET /repos/${owner}/${repo}/commits/${sha}`
   const res = await octokit.request(path)
 
@@ -29,10 +15,11 @@ export async function assignMaintainer(owner, repo, sha, labelName) {
     ) !== -1
   ) {
     const maintainer = await readMaintainerTxt(owner, repo, sha)
-    const prList = await getPullRequests(octokit, owner, repo, labelName)
+    const codeOwners = await readCodeOwners(owner, repo, sha)
+    const prList = await getPullRequests(owner, repo, labelName)
 
     if (prList.length > 0) {
-      return await updatePrs(octokit, maintainer, prList)
+      return await updatePrs(maintainer, codeOwners, prList)
     }
   }
 }
@@ -40,8 +27,8 @@ export async function assignMaintainer(owner, repo, sha, labelName) {
 // Call this when a the label is applied
 export async function assignOnLabel(owner, repo, sha, prNumber) {
   const maintainer = await readMaintainerTxt(owner, repo, sha)
-  const path = `PATCH /repos/${owner}/${repo}/issues/${prNumber}`
-  const octokit = getOctokit()
+  const codeOwners = await readCodeOwners(owner, repo, sha)
+  const pr = await getPullRequest(owner, repo, prNumber)
 
-  return await octokit.request(path, { assignees: [maintainer] })
+  return await updatePrs(maintainer, codeOwners, [pr])
 }

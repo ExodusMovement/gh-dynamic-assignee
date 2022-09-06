@@ -1,20 +1,14 @@
-import { Octokit } from '@octokit/rest'
-import { graphql } from '@octokit/graphql'
-import generateReleaseNotes from '../src/generate-release-notes.mjs'
+import { lookupLoginIds } from '../src/update_prs.mjs'
+import { getPullRequests } from '../src/get_prs.mjs'
 
 async function run() {
-  const octokit = {
-    rest: new Octokit({ auth: process.env.GITHUB_TOKEN }),
-    graphql: graphql.defaults({
-      headers: {
-        authorization: `token ${process.env.GITHUB_TOKEN}`,
-      },
-    }),
-  }
-  await generateReleaseNotes(octokit, {
-    owner: 'ExodusMovement',
-    repo: process.env.REPO || 'gh-release-generator-test',
-  })
+  const loginIdList = ['dooglio', 'nachoaIvarez', 'ChALkeR']
+
+  const lookupResult = await lookupLoginIds(loginIdList)
+
+  const prResult = await getPullRequests('ExodusMovement', 'gh-webhook-link', 'merge-ready')
+
+  return { lookupResult, prResult }
 }
 
-run().catch(console.error)
+run().then(console.info).catch(console.error)

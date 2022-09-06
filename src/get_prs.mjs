@@ -1,4 +1,6 @@
-const query = `#graphql
+import getOctokit from './octokit.mjs'
+
+const labelQuery = `#graphql
   query PRsByLabelQuery($owner: String!, $repo: String!, $labelName: String!, $first: Int!, $after: String) {
     repository(owner: $owner, name: $repo) {
       label(name: $labelName) {
@@ -6,6 +8,11 @@ const query = `#graphql
           nodes {
             id
             closed
+            assignees(first: 100) {
+              nodes {
+                id
+              }
+            }
           }
           pageInfo {
             hasNextPage
@@ -16,13 +23,26 @@ const query = `#graphql
     }
   }`
 
-export default async function getPullRequests(octokit, owner, repo, labelName) {
+const prQuery = `#graphql
+  query prQuery($owner: String!, $repo: String!, $prNumber: Int!) {
+    repository(owner: $owner, name: $repo) {
+      pullRequest(number: $prNumber) {
+        id
+        assignees(first: 100) {
+          id
+        }
+      }
+    }
+  }`
+
+export async function getPullRequests(owner, repo, labelName) {
+  const octokit = getOctokit()
   let hasNextPage
   let after
-  let prList = []
+  const prList = []
 
   do {
-    const result = await octokit.graphql(query, {
+    const result = await octokit.graphql(labelQuery, {
       owner,
       repo,
       labelName,
@@ -32,15 +52,28 @@ export default async function getPullRequests(octokit, owner, repo, labelName) {
     const label = result.repository.label
     const pullRequests = label?.pullRequests
     const pageInfo = pullRequests?.pageInfo
-    const theNodes = pullRequests?.nodes
+    const nodeList = pullRequests?.nodes
 
     hasNextPage = pageInfo?.hasNextPage
     after = pageInfo?.endCursor
 
-    if (theNodes) {
-      prList = prList.concat(theNodes.filter((node) => !node.closed).map((node) => node.id))
+    if (nodeList) {
+      for (const node of nodeList.filter((node) => !node.closed)) {
+        prList.push({ id: node.id, assignees: node.assignees.nodes.map((node) => node.id) })
+      }
     }
   } while (hasNextPage)
 
   return prList
+}
+
+export async function getPullRequest(owner, repo, prNumber) {
+  const octokit = getOctokit()
+  const result = await octokit.graphql(prQuery, {
+    owner,
+    repo,
+    prNumber,
+  })
+  const pullRequest = result.repository.pullRequest
+  return { id: pullRequest.id, assignees: pullRequest.assignees.nodes.map((node) => node.id) }
 }
