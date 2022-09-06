@@ -18,6 +18,10 @@ export async function assignMaintainer(owner, repo, sha, labelName) {
     const codeOwners = await readCodeOwners(owner, repo, sha)
     const prList = await getPullRequests(octokit, owner, repo, labelName)
 
+    console.info('maintainer=', maintainer)
+    console.info('codeOwners=', codeOwners)
+    console.info('prList=', prList)
+
     if (prList.length > 0) {
       return await updatePrs(octokit, maintainer, codeOwners, prList)
     }
