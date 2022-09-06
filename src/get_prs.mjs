@@ -56,8 +56,10 @@ export async function getPullRequests(octokit, owner, repo, labelName) {
     hasNextPage = pageInfo?.hasNextPage
     after = pageInfo?.endCursor
 
-    for (const node of nodeList.filter((node) => !node.closed)) {
-      prList.push({ id: node.id, assignees: node.assignees.nodes.map((node) => node.id) })
+    if (nodeList) {
+      for (const node of nodeList.filter((node) => !node.closed)) {
+        prList.push({ id: node.id, assignees: node.assignees.nodes.map((node) => node.id) })
+      }
     }
   } while (hasNextPage)
 
