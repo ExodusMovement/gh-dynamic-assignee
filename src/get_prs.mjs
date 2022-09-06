@@ -35,7 +35,8 @@ const prQuery = `#graphql
     }
   }`
 
-export async function getPullRequests(octokit, owner, repo, labelName) {
+export async function getPullRequests(owner, repo, labelName) {
+  const octokit = getOctokit()
   let hasNextPage
   let after
   const prList = []

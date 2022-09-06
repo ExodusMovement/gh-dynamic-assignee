@@ -43,7 +43,8 @@ function generateQuery(loginCount) {
   return query
 }
 
-export async function lookupLoginIds(octokit, loginIdList) {
+export async function lookupLoginIds(loginIdList) {
+  const octokit = getOctokit()
   const query = generateQuery(loginIdList.length)
   const loginParams = loginIdList.reduce(
     (acc, login, idx) => ({ [`loginId${idx}`]: login, ...acc }),
@@ -64,8 +65,7 @@ export function testMutation(count) {
 }
 
 export default async function updatePrs(maintainer, codeOwners, prList) {
-  const octokit = getOctokit()
-  const maintainerList = await lookupLoginIds(octokit, [
+  const maintainerList = await lookupLoginIds([
     maintainer,
     ...codeOwners.filter((login) => login !== maintainer),
   ])
@@ -84,5 +84,6 @@ export default async function updatePrs(maintainer, codeOwners, prList) {
     params.set(`assigneeIds${idx}`, assignees)
   }
 
+  const octokit = getOctokit()
   return await octokit.graphql(mutation, params)
 }
