@@ -1,16 +1,25 @@
 name: 'GH Dynamic Assignee'
-description: 'Assigns automatically the person specified in MAINTAINER.txt.'
+description: 'Assigns PRs to the person specified in MAINTAINER.txt'
+
 inputs:
   github_token:
-    description: 'The GitHub token (if not provided the environment variable GITHUB_TOKEN will be used instead)'
-    required: false
+    description: 'GitHub token with PR write access'
+    required: true
   label_name:
-    description: 'The label name of the label to react to.'
+    description: 'Label that triggers assignment'
     required: false
     default: 'Ready to Merge'
-outputs:
-  id:
-    description: 'The release id'
+
 runs:
-  using: 'node24'
-  main: 'dist/index.mjs'
+  using: 'composite'
+  steps:
+    - name: Assign PRs to maintainer
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github_token }}
+        LABEL_NAME: ${{ inputs.label_name }}
+        EVENT_NAME: ${{ github.event_name }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        LABEL_ACTION: ${{ github.event.action }}
+        LABEL_APPLIED: ${{ github.event.label.name }}
+      run: ${{ github.action_path }}/assign.sh
