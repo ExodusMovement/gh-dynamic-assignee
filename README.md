@@ -42,7 +42,7 @@ on:
     branches: [master]
     paths: ['MAINTAINER.txt']  # Only trigger when maintainer changes
 
-permissions:  # Required permissions for GITHUB_TOKEN
+permissions:  # Required for the action to modify PRs
   contents: read
   pull-requests: write
 
@@ -52,8 +52,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ExodusMovement/gh-dynamic-assignee@v2
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### 3. Customize Label (Optional)
@@ -63,7 +61,6 @@ By default, the action triggers on the "Ready to Merge" label. To use a differen
 ```yaml
 - uses: ExodusMovement/gh-dynamic-assignee@v2
   with:
-    github_token: ${{ secrets.GITHUB_TOKEN }}
     label_name: 'needs-review'
 ```
 
@@ -71,15 +68,14 @@ By default, the action triggers on the "Ready to Merge" label. To use a differen
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `github_token` | Yes | - | GitHub token with PR write permissions |
 | `label_name` | No | `Ready to Merge` | Label that triggers assignment |
 
 ## Permissions
 
-The `GITHUB_TOKEN` needs the following permissions:
+Your workflow must grant these permissions for the action to work:
 
 ```yaml
 permissions:
-  pull-requests: write
   contents: read
+  pull-requests: write
 ```

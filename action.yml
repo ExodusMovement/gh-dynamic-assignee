@@ -2,9 +2,6 @@ name: 'GH Dynamic Assignee'
 description: 'Assigns PRs to the person specified in MAINTAINER.txt'
 
 inputs:
-  github_token:
-    description: 'GitHub token with PR write access'
-    required: true
   label_name:
     description: 'Label that triggers assignment'
     required: false
@@ -16,7 +13,7 @@ runs:
     - name: Assign PRs to maintainer
       shell: bash
       env:
-        GH_TOKEN: ${{ inputs.github_token }}
+        GH_TOKEN: ${{ github.token }}
         LABEL_NAME: ${{ inputs.label_name }}
         EVENT_NAME: ${{ github.event_name }}
         PR_NUMBER: ${{ github.event.pull_request.number }}
