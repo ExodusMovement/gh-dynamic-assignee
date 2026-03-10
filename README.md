@@ -51,6 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Required for push event to detect previous maintainer
       - uses: ExodusMovement/gh-dynamic-assignee@v2
 ```
 
