@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+REPO="${GITHUB_REPOSITORY:-$(gh repo view --json nameWithOwner -q .nameWithOwner)}"
+
 if [[ ! -f "MAINTAINER.txt" ]]; then
   echo "[error] MAINTAINER.txt not found in repository root"
   exit 1
@@ -17,7 +19,7 @@ echo "Maintainer: $MAINTAINER"
 if [[ "$EVENT_NAME" == "pull_request" || "$EVENT_NAME" == "pull_request_target" ]]; then
   if [[ "$LABEL_ACTION" == "labeled" && "$LABEL_APPLIED" == "$LABEL_NAME" ]]; then
     echo "Label event: assigning PR #$PR_NUMBER to $MAINTAINER"
-    gh pr edit "$PR_NUMBER" --add-assignee "$MAINTAINER"
+    gh api "repos/$REPO/issues/$PR_NUMBER/assignees" -f assignees[]="$MAINTAINER"
     echo "✓ Assigned PR #$PR_NUMBER to $MAINTAINER"
   else
     echo "Skipping: label action '$LABEL_ACTION' or label '$LABEL_APPLIED' doesn't match"
@@ -44,9 +46,9 @@ if [[ "$EVENT_NAME" == "push" ]]; then
   while IFS= read -r pr_num; do
     echo "Reassigning PR #$pr_num to $MAINTAINER"
     if [[ -n "$PREVIOUS_MAINTAINER" && "$PREVIOUS_MAINTAINER" != "$MAINTAINER" ]]; then
-      gh pr edit "$pr_num" --remove-assignee "$PREVIOUS_MAINTAINER" 2>/dev/null || true
+      gh api "repos/$REPO/issues/$pr_num/assignees" -X DELETE -f assignees[]="$PREVIOUS_MAINTAINER" 2>/dev/null || true
     fi
-    gh pr edit "$pr_num" --add-assignee "$MAINTAINER"
+    gh api "repos/$REPO/issues/$pr_num/assignees" -f assignees[]="$MAINTAINER"
   done <<< "$PR_NUMBERS"
 
   COUNT=$(echo "$PR_NUMBERS" | wc -l | tr -d ' ')
