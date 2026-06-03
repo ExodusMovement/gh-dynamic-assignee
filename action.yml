@@ -1,22 +1,22 @@
 name: 'GH Dynamic Assignee'
-description: 'Assigns PRs to the person specified in MAINTAINER.txt'
+description: 'Assigns PRs to the relevant member(s) of a team, derived from CODEOWNERS'
 
 inputs:
+  team:
+    description: 'Team to route within, as "org/team-slug" or "team-slug" (defaults org to the repo owner)'
+    required: true
+  github_token:
+    description: 'Token with org Members:read, Pull requests:write, Contents:read (e.g. a GitHub App token)'
+    required: true
   label_name:
     description: 'Label that triggers assignment'
     required: false
     default: 'Ready to Merge'
+  selection:
+    description: 'How to choose among candidate team members: "load-balance" or "all"'
+    required: false
+    default: 'load-balance'
 
 runs:
-  using: 'composite'
-  steps:
-    - name: Assign PRs to maintainer
-      shell: bash
-      env:
-        GH_TOKEN: ${{ github.token }}
-        LABEL_NAME: ${{ inputs.label_name }}
-        EVENT_NAME: ${{ github.event_name }}
-        PR_NUMBER: ${{ github.event.pull_request.number }}
-        LABEL_ACTION: ${{ github.event.action }}
-        LABEL_APPLIED: ${{ github.event.label.name }}
-      run: ${{ github.action_path }}/assign.sh
+  using: 'node20'
+  main: 'dist/index.js'
