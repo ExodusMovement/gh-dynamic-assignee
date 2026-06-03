@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import * as core from '@actions/core';
 
 import { createGitHubClient } from './github';
-import { routePr, type Selection } from './route';
+import { routePr } from './route';
 
 interface PullRequestEvent {
   action?: string;
@@ -15,7 +15,10 @@ async function run(): Promise<void> {
   const token = core.getInput('github_token', { required: true });
   const team = core.getInput('team', { required: true });
   const labelName = core.getInput('label_name') || 'Ready to Merge';
-  const selection = (core.getInput('selection') || 'load-balance') as Selection;
+  const selection = core.getInput('selection') || 'load-balance';
+  if (selection !== 'load-balance' && selection !== 'all') {
+    throw new Error(`Invalid selection '${selection}'; expected 'load-balance' or 'all'`);
+  }
 
   const eventName = process.env.GITHUB_EVENT_NAME;
   if (eventName !== 'pull_request' && eventName !== 'pull_request_target') {
