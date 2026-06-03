@@ -1,48 +1,30 @@
 # GH Dynamic Assignee
 
-A lightweight GitHub Action that automatically assigns pull requests to a designated maintainer.
+A GitHub Action that, when a label is applied to a pull request, assigns it to the relevant
+member(s) of a team — derived from your `CODEOWNERS` file.
 
-## How It Works
+## How it works
 
-1. Create a `MAINTAINER.txt` file in your repository root containing a single GitHub username
-2. Configure the action to run on PR label events and/or pushes
-3. When triggered, PRs are automatically assigned to the maintainer
+When the trigger label is added to a PR, the action:
 
-### Triggers
-
-| Event | Behavior |
-|-------|----------|
-| `pull_request` with `labeled` action | Assigns that PR to the maintainer |
-| `push` | Removes previous maintainer and assigns new maintainer on all open labeled PRs |
-
-> [!TIP]
-> On `push` events, utilize the `paths:` filter in your calling workflow to only run when `MAINTAINER.txt` changes. See the example workflow below.
+1. Reads the PR's changed files and resolves their owners from `CODEOWNERS` (last matching pattern wins).
+2. Expands any team owners (`@org/team`) to their members.
+3. Intersects those owners with the configured `team` — only members of that team are eligible.
+4. Assigns the PR:
+   - `load-balance` (default): the eligible member with the fewest open assigned PRs.
+   - `all`: every eligible member.
+5. If no eligible member owns the changed files, it falls back to load-balancing across the whole team.
 
 ## Usage
 
-### 1. Create `MAINTAINER.txt`
-
-Add a file named `MAINTAINER.txt` to your repository root with the maintainer's GitHub username:
-
-```
-octocat
-```
-
-### 2. Create Workflow
-
-Create `.github/workflows/assign-maintainer.yml`:
-
 ```yaml
-name: Assign PRs to Maintainer
+name: Assign PRs
 
 on:
   pull_request:
     types: [labeled]
-  push:
-    branches: [master]
-    paths: ['MAINTAINER.txt']  # Only trigger when maintainer changes
 
-permissions:  # Required for the action to modify PRs
+permissions:
   contents: read
   pull-requests: write
 
@@ -50,34 +32,45 @@ jobs:
   assign:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/create-github-app-token@v3
+        id: app-token
         with:
-          fetch-depth: 2  # Required for push event to detect previous maintainer
-      - uses: ExodusMovement/gh-dynamic-assignee@v2
-```
-
-### 3. Customize Label (Optional)
-
-By default, the action triggers on the "Ready to Merge" label. To use a different label:
-
-```yaml
-- uses: ExodusMovement/gh-dynamic-assignee@v2
-  with:
-    label_name: 'needs-review'
+          app-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          permission-members: read
+          permission-contents: read
+          permission-pull-requests: write
+      - uses: octo-org/gh-dynamic-assignee@v3
+        with:
+          team: octo-org/maintainers
+          github_token: ${{ steps.app-token.outputs.token }}
 ```
 
 ## Inputs
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
+| `team` | Yes | — | Team to route within, as `org/team-slug` or `team-slug` (org defaults to the repo owner) |
+| `github_token` | Yes | — | Token with the permissions below |
 | `label_name` | No | `Ready to Merge` | Label that triggers assignment |
+| `selection` | No | `load-balance` | `load-balance` or `all` |
 
-## Permissions
+## Token permissions
 
-Your workflow must grant these permissions for the action to work:
+Listing a (closed) team's members requires more than the default `GITHUB_TOKEN`. Use a token —
+typically a GitHub App token — with:
 
-```yaml
-permissions:
-  contents: read
-  pull-requests: write
+- Organization **Members: read**
+- Repository **Pull requests: write**
+- Repository **Contents: read** (to read `CODEOWNERS`)
+
+## Development
+
+```bash
+npm ci
+npm run typecheck
+npm test
+npm run build   # bundles src/ into dist/index.js (committed)
 ```
+
+CI verifies that `dist/` is in sync with the source.
